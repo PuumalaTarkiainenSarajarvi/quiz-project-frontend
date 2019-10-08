@@ -173,7 +173,7 @@ class QuizGame extends Component {
 
     getQuestionContent() {
         return(<div>
-            <Card style={{ width: '25rem', height: '350px', margin: '0 auto', padding: '2rem' }}>
+            <Card style={{ maxWidth: '25rem', maxHeight: '350px', margin: '0 auto', padding: '2rem' }}>
                 <Card.Body>
                     <Card.Subtitle className="mb-2 text-muted">Category: {this.state.category}</Card.Subtitle>
                     <Card.Text>
