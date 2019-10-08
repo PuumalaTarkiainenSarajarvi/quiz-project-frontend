@@ -129,7 +129,7 @@ class HighScores extends Component {
             return sortedJsonData.map((itm, i) => {
                 let itmDate = new Date(itm.date);
                 return(<tr key={i}>
-                    <td>{i}</td>
+                    <td>{i + 1}</td>
                     <td>{itm[nickName]}</td>
                     <td>{itmDate.toLocaleString('default', options)}</td>
                     <td>{itm[highScore]}</td>
