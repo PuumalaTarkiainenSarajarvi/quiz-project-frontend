@@ -1,5 +1,5 @@
 
-export const SERVER_URL = "https://quiz-project-api.herokuapp.com/";
+export const SERVER_URL = "https://quiz-project-api.herokuapp.com";
 export const nickName = 'nickname';
 export const tenBestScores = 'tenBestScores';
 export const highScore = 'score';
