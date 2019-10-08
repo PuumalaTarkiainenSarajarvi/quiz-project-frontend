@@ -1,6 +1,7 @@
 import React, { Component } from "react"
 import ClockForGame from "./ClockForGame";
 import {Button, Card} from "react-bootstrap";
+import {SERVER_URL} from "./variables/Variables";
 
 class QuizGame extends Component {
     constructor(props) {
@@ -15,18 +16,18 @@ class QuizGame extends Component {
             difficulty: undefined,
             points: 0,
             sessionId: undefined,
+            playable: undefined,
         }
     }
     componentDidMount(){
-        let sessionId = sessionStorage.getItem('session_id');
-
-        this.startGameSession();
-        this.checkIfSessionIsValid();
+            this.startGameSession();
+            this.checkIfSessionIsValid();
     }
 
     startGameSession() {
+        if(!sessionStorage.getItem('session_id')) {
         console.log("START");
-        let urlAddress = "http://localhost:5000/api/start_game_session";
+        let urlAddress = SERVER_URL + "/api/start_game_session";
         fetch(urlAddress, {
             method: 'POST',
             headers: {
@@ -43,15 +44,14 @@ class QuizGame extends Component {
             })
             .then(response => response.json())
             .then(data => {
-                console.log("DATA", data);
                 if(data.hasOwnProperty('session_id'))
                     sessionStorage.setItem('session_id', data.session_id);
                 this.props.history.push('/quizgame');
             })
             .catch((error) => {
-                console.log(error);
                 alert("Try again :)");
             });
+        }
     }
 
 
@@ -65,16 +65,13 @@ class QuizGame extends Component {
         } else {
             this.props.history.push('/');
         }
-        console.log("SESSIONID", sessionId);
     }
 
     getRandomQuestion() {
-        let sessionIdentifier = [];
+        let sessionIdentifier = {};
         let sessionId = sessionStorage.getItem('session_id');
-        console.log("SESSIONID", sessionId.length);
         sessionIdentifier['session_id'] = sessionId;
-        console.log("SE", sessionIdentifier);
-        let urlAddress = "http://localhost:5000/api/get_random_question";
+        let urlAddress = SERVER_URL + "/api/get_random_question";
         fetch(urlAddress, {
             method: 'GET',
             headers: {
@@ -96,7 +93,6 @@ class QuizGame extends Component {
                    data.hasOwnProperty('_id') &&
                    data.hasOwnProperty('category')
                ) {
-                   console.log("Received response", data);
 
                    this.setState({
                        question: this.htmlEntities(data.question),
@@ -122,15 +118,13 @@ class QuizGame extends Component {
         };
         jsonStr['_id'] = this.state.questionId;
         jsonStr['correct_answer'] = itm;
-        console.log(jsonStr);
         await this.checkJsonObjectFromApi(body);
         this.newQuestion();
     }
 
     checkJsonObjectFromApi(jsonStr) {
-        console.log(jsonStr);
         let sessionId = sessionStorage.getItem('session_id');
-        let urlAddress = "http://localhost:5000/api/check_correct_answer";
+        let urlAddress = SERVER_URL + "/api/check_correct_answer";
         fetch(urlAddress, {
             method: 'POST',
             headers: {
@@ -148,7 +142,6 @@ class QuizGame extends Component {
             })
             .then(response => response.json())
             .then(data => {
-                console.log("CURRENT", data);
                 this.markCorrectWrongForUser(data)
             })
     }
@@ -182,7 +175,6 @@ class QuizGame extends Component {
         return(<div>
             <Card style={{ width: '25rem', height: '350px', margin: '0 auto', padding: '2rem' }}>
                 <Card.Body>
-                    <Card.Title>{this.state.question}</Card.Title>
                     <Card.Subtitle className="mb-2 text-muted">Category: {this.state.category}</Card.Subtitle>
                     <Card.Text>
                         Difficulty: {this.state.difficulty}
@@ -190,6 +182,8 @@ class QuizGame extends Component {
                     <Card.Text>
                         Points: {this.state.points}
                     </Card.Text>
+                    <div className={'viiva'}/>
+                    <Card.Title>{this.state.question}</Card.Title>
                 </Card.Body>
             </Card>
 
@@ -202,7 +196,22 @@ class QuizGame extends Component {
                return(<Button key={i} variant={"outline-success"} size={"sm"} block  onClick={() => this.checkCorrectAnswer(itm)}>{itm}</Button>)
             });
         }
-        console.log(this.state.answers);
+    }
+
+    getGameData() {
+        return (
+            <div>
+                <h1 className={"quizH"}>Quiz Game</h1>
+                {this.getQuestionContent()}
+                <ClockForGame
+                    score = {this.state.points}
+                    sessionId = {sessionStorage.getItem('session_id')}
+                />
+                <div className={"gameAnswerButtons"}>
+                    {this.getAnswerData()}
+                </div>
+            </div>
+        )
     }
 
     newQuestion() {
@@ -218,19 +227,7 @@ class QuizGame extends Component {
                 <h1>Loading...</h1>
             </div>)
         }
-        return (
-            <div>
-                <h1 className={"quizH"}>Quiz Game</h1>
-                {this.getQuestionContent()}
-                <ClockForGame
-                score = {this.state.points}
-                sessionId = {sessionStorage.getItem('session_id')}
-                />
-                <div className={"gameAnswerButtons"}>
-                {this.getAnswerData()}
-                </div>
-            </div>
-        )
+        return(<div>{this.getGameData()}</div>)
     }
 }
 

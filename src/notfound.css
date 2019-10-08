@@ -1,0 +1,11 @@
+.homepagelink {
+    color: black;
+    text-decoration: inherit;
+    border: 1px solid black;
+    border-radius: 15px;
+    padding: 0.5em;
+}
+.homepagelink:hover {
+    text-decoration: inherit;
+}
+

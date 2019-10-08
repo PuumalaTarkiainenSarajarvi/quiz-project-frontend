@@ -1,7 +1,7 @@
 import React, { Component } from "react"
 import {Tab, Table, Tabs} from "react-bootstrap";
 import './highscores.css';
-import {email, highScore, nickName, tenBestScores} from "./variables/Variables";
+import {email, highScore, nickName, SERVER_URL, tenBestScores} from "./variables/Variables";
 
 class HighScores extends Component {
     constructor(props) {
@@ -22,7 +22,7 @@ class HighScores extends Component {
     }
 
     getHighScores() {
-        let urlAddress = "http://localhost:5000/api/get_all_high_scores";
+        let urlAddress = SERVER_URL + "/api/get_all_high_scores";
         fetch(urlAddress, {
             method: 'GET',
             headers: {
@@ -37,7 +37,6 @@ class HighScores extends Component {
             })
             .then(response => response.json())
             .then(data => {
-                console.log("data",data);
                 this.setState({
                    isLoading: false,
                     allHighScore: data,
@@ -54,8 +53,7 @@ class HighScores extends Component {
 
 
     apiGetPersonalBest(jsonStr) {
-        console.log("TT");
-        let urlAddress = "http://localhost:5000/api/get_personal_bests";
+        let urlAddress = SERVER_URL + "/api/get_personal_bests";
         fetch(urlAddress, {
             method: 'POST',
             headers: {
@@ -72,7 +70,6 @@ class HighScores extends Component {
             })
             .then(response => response.json())
             .then(data => {
-                console.log("PERSONAL",data);
                 this.setState({
                     personalJson: data,
                 });
@@ -116,17 +113,25 @@ class HighScores extends Component {
 
     sortJsonScores(json) {
         return json.sort(function(a,b) {
-           return a[highScore] - b[highScore];
+           return b[highScore] - a[highScore];
         });
     }
     renderHighScores() {
         let sortedJsonData = this.sortJsonScores(this.state.allHighScore);
         if(sortedJsonData) {
+            let options = {
+                hour: '2-digit',
+                minute: '2-digit',
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+            };
             return sortedJsonData.map((itm, i) => {
+                let itmDate = new Date(itm.date);
                 return(<tr key={i}>
                     <td>{i}</td>
                     <td>{itm[nickName]}</td>
-                    <td>Testi</td>
+                    <td>{itmDate.toLocaleString('default', options)}</td>
                     <td>{itm[highScore]}</td>
                 </tr>)
             });
@@ -135,12 +140,20 @@ class HighScores extends Component {
     renderPersonalScores() {
         let sortedJsonData = this.sortJsonScores(this.state.personalJson[0][tenBestScores]);
         let userNickName = this.state.personalJson[0][nickName];
+        let options = {
+            hour: '2-digit',
+            minute: '2-digit',
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+        };
         if(sortedJsonData) {
         return sortedJsonData.map((itm, i) => {
+            let itmDate = new Date(itm.date);
             return(<tr key={i}>
                 <td>{i}</td>
                 <td>{userNickName}</td>
-                <td>{itm.date}</td>
+                <td>{itmDate.toLocaleString('default', options)}</td>
                 <td>{itm[highScore]}</td>
             </tr>)
         });
